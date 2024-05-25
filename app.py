@@ -8,8 +8,9 @@ from flask import Markup
 
 flag = 1
 name = ""
-palm.configure(api_key="AIzaSyADMVK972Q6qLC-MUzdU2zwsrj01S4s0Bo")
-os.environ["REPLICATE_API_TOKEN"] = "r8_Tj7LO9abOf0jKbQQF6hUzQDrFUL2qdI2hdvRR"
+
+makersuite_api = os.getenv("MAKERSUITE_API_TOKEN")
+palm.configure(api_key=makersuite_api)
 
 model = {"model": "models/chat-bison-001"}
 
