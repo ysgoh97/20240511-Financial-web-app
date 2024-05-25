@@ -2,12 +2,14 @@ from flask import Flask, render_template, request
 import google.generativeai as palm
 import replicate
 import os
+import sqlite3
+import datetime
+from flask import Markup
 
 flag = 1
 name = ""
-
-makersuite_api = os.getenv("MAKERSUITE_API_TOKEN")
-palm.configure(api_key=makersuite_api)
+palm.configure(api_key="AIzaSyADMVK972Q6qLC-MUzdU2zwsrj01S4s0Bo")
+os.environ["REPLICATE_API_TOKEN"] = "r8_Tj7LO9abOf0jKbQQF6hUzQDrFUL2qdI2hdvRR"
 
 model = {"model": "models/chat-bison-001"}
 
@@ -27,6 +29,13 @@ def main():
     global flag, name
     if flag == 1: # only fetch name once
         name = request.form.get("q")
+        current_time = datetime.datetime.now()
+        conn = sqlite3.connect('log.db')
+        c = conn.cursor()
+        c.execute("insert into user (name,time) values(?,?)", (name, current_time))
+        conn.commit()
+        c.close
+        conn.close()
         flag = 0
     return(render_template("main.html",r=name))
 
@@ -61,6 +70,30 @@ def image_result():
         input={"prompt": q}
     )
     return(render_template("image_result.html", r=r[0]))
+
+@app.route("/log",methods=["GET","POST"])
+def log():
+    conn = sqlite3.connect('log.db')
+    c = conn.cursor()
+    c.execute("select * from user")
+    r = ""
+    for row in c:
+      r+= str(row) + "<br>"
+    print(r)
+    r = Markup(r)
+    c.close
+    conn.close()
+    return(render_template("log.html", r=r))
+
+@app.route("/delete",methods=["GET","POST"])
+def delete():
+    conn = sqlite3.connect('log.db')
+    c = conn.cursor()
+    c.execute("delete from user")
+    conn.commit()
+    c.close
+    conn.close()
+    return(render_template("delete.html"))
 
 @app.route("/end",methods=["GET","POST"])
 def end():
