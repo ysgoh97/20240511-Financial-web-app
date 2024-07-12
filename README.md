@@ -1,3 +1,5 @@
+# Description
+
 Class practice to develop a web application integrating multiple machine learning models:
 
 * Price prediction using Scikit-learn's linear regression model
